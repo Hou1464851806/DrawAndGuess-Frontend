@@ -11,6 +11,7 @@ const selectedRoom = ref(null)
 // 获取房间列表
 const fetchRooms = async () => {
   // await new Promise((resolve) => setTimeout(resolve, 1000))
+  // Todo: 需要从后端获取房间列表数据
   rooms.value = [
     { id: 'r001', name: '快乐玩耍房', currentPlayers: 2, maxPlayers: 4, status: 'waiting' },
     { id: 'r002', name: '大佬勿扰', currentPlayers: 4, maxPlayers: 4, status: 'in-game' },
@@ -28,6 +29,23 @@ const selectRoom = (room) => {
   }
 
   selectedRoom.value = room
+}
+
+// 新建房间
+const DEFAULTMAXPLAYERS = 4
+const MAXPLAYERS = 32
+const showCreateRoomPopup = ref(false)
+const newRoomForm = ref({
+  name: '',
+  maxPlayers: DEFAULTMAXPLAYERS,
+})
+
+const createNewRoom = () => {
+  newRoomForm.value = {
+    name: '',
+    maxPlayers: DEFAULTMAXPLAYERS,
+  }
+  showCreateRoomPopup.value = true
 }
 
 const currentPage = ref(1)
@@ -87,12 +105,47 @@ onMounted(() => {
         :total-items="25"
         force-ellipses
       />
-      <div class="room-button">
-        <VanButton plain type="primary"> 新建 </VanButton>
-        <VanButton plain type="primary"> 加入 </VanButton>
+      <div class="room-buttons">
+        <VanButton plain type="primary" class="create-button" @click="createNewRoom">
+          新建
+        </VanButton>
+        <VanButton plain type="primary" class="join-button"> 加入 </VanButton>
       </div>
     </div>
   </footer>
+
+  <VanPopup v-model:show="showCreateRoomPopup" position="top">
+    <VanNavBar title="新建房间" />
+    <VanForm @submit="submitCreateRoom">
+      <div class="createroom-cells">
+        <VanCellGroup>
+          <VanField
+            v-model="newRoomForm.name"
+            name="name"
+            label="房间名称"
+            placeholder="请输入房间名称"
+            :rules="[{ required: true, message: '请填写房间名称' }]"
+          />
+          <VanField name="max_players" label="最大人数">
+            <template #input>
+              <VanStepper
+                v-model="newRoomForm.maxPlayers"
+                min="2"
+                :max="MAXPLAYERS"
+                integer
+                auto-fixed
+                long-press
+              />
+            </template>
+          </VanField>
+        </VanCellGroup>
+      </div>
+      <div class="popup-buttons">
+        <VanButton plain type="primary" native-type="submit"> 创建 </VanButton>
+        <VanButton plain type="primary" @click="showCreateRoomPopup = false"> 取消 </VanButton>
+      </div>
+    </VanForm>
+  </VanPopup>
 </template>
 
 <style scoped>
@@ -116,7 +169,11 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
 }
-.room-button {
+.room-buttons {
+  display: flex;
+  justify-content: end;
+}
+.popup-buttons {
   display: flex;
   justify-content: end;
 }
@@ -128,5 +185,10 @@ onMounted(() => {
 }
 .room-value {
   color: var(--van-cell-text-color);
+}
+.createroom-cells {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 </style>

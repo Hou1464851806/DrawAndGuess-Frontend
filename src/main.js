@@ -21,7 +21,9 @@ import {
   Icon,
   NavBar,
   Pagination,
+  Popup,
   Row,
+  Stepper,
   Tag,
 } from 'vant'
 
@@ -44,5 +46,7 @@ app.use(Grid)
 app.use(GridItem)
 app.use(Pagination)
 app.use(Tag)
+app.use(Popup)
+app.use(Stepper)
 
 app.mount('#app')
